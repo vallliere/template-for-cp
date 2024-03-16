@@ -1,0 +1,82 @@
+template <typename T, int _hash>
+struct palindrome_segment_tree {
+    palindrome_segment_tree(T &arr)
+    {
+        N = arr.size();
+        _size = 1;
+        while (_size < N)
+            _size *= 2;
+        segment_tree[0].resize(_size * 2);
+        segment_tree[1].resize(_size * 2);
+        power_2.resize(N + 1);
+        power_2[0] = 1;
+        for (int i = 1; i <= N; i++)
+            power_2[i] = power_2[i - 1] * 2 % _hash;
+        for (int i = 0; i < N; i++) {
+            segment_tree[0][i + _size] = {arr[i] % _hash, 1};
+            segment_tree[1][i + _size] = {arr[N - 1 - i] % _hash, 1};
+        }
+        for (int i = _size - 1; i > 0; i--) {
+            _update(i, 0);
+            _update(i, 1);
+        }
+    }
+    void update(int lo, int va)
+    {
+        int loc;
+        segment_tree[0][lo].first = va % _hash;
+        loc = (lo + _size) / 2;
+        while (loc > 0) {
+            _update(loc, 0);
+            loc /= 2;
+        }
+        segment_tree[1][N - 1 - lo].first = va % _hash;
+        loc = (N - 1 - lo + _size) / 2;
+        while (loc > 0) {
+            _update(loc, 1);
+            loc /= 2;
+        }
+    }
+    bool find(int st, int en)
+    {
+        _ans = {0, 0};
+        _find(0, _size, st, en + 1, 1, 0);
+        ans0 = _ans;
+        _ans = {0, 0};
+        _find(0, _size, N - 1 - en, N - 1 - st + 1, 1, 1);
+        ans1 = _ans;
+        return ans0 == ans1;
+    }
+
+   private:
+    int N, _size;
+    pii _ans, ans0, ans1;
+    vector<pii> segment_tree[2];
+    vector<int> power_2;
+    void _update(int lo, int ke)
+    {
+        assert(lo < _size);
+        segment_tree[ke][lo] = merge(segment_tree[ke][lo * 2], segment_tree[ke][lo * 2 + 1]);
+    }
+    pii merge(pii a, pii b)
+    {
+        pii ret;
+        ret.first = (long long)(a.first) * power_2[b.second] % _hash;
+        ret.first = (ret.first + b.first) % _hash;
+        ret.second = a.second + b.second;
+        return ret;
+    }
+    void _find(int lx, int ly, int fx, int fy, int lo, int ke)
+    {
+        int md;
+        if (lx >= fy || ly <= fx)
+            return;
+        if (lx >= fx && ly <= fy) {
+            _ans = merge(_ans, segment_tree[ke][lo]);
+            return;
+        }
+        md = (lx + ly) / 2;
+        _find(lx, md, fx, fy, lo * 2, ke);
+        _find(md, ly, fx, fy, lo * 2 + 1, ke);
+    }
+};
