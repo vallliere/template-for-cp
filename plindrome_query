@@ -1,17 +1,17 @@
-template <typename T, int _hash>
+template <typename T, int _base, int _hash>
 struct palindrome_segment_tree {
     palindrome_segment_tree(T &arr)
     {
         N = arr.size();
         _size = 1;
-        while (_size < N)
+        while (_size <= N)
             _size *= 2;
         segment_tree[0].resize(_size * 2);
         segment_tree[1].resize(_size * 2);
-        power_2.resize(N + 1);
-        power_2[0] = 1;
+        power_base.resize(N + 1);
+        power_base[0] = 1;
         for (int i = 1; i <= N; i++)
-            power_2[i] = power_2[i - 1] * 2 % _hash;
+            power_base[i] = power_base[i - 1] * (long long)(_base) % _hash;
         for (int i = 0; i < N; i++) {
             segment_tree[0][i + _size] = {arr[i] % _hash, 1};
             segment_tree[1][i + _size] = {arr[N - 1 - i] % _hash, 1};
@@ -24,13 +24,13 @@ struct palindrome_segment_tree {
     void update(int lo, int va)
     {
         int loc;
-        segment_tree[0][lo].first = va % _hash;
+        segment_tree[0][lo + _size].first = va % _hash;
         loc = (lo + _size) / 2;
         while (loc > 0) {
             _update(loc, 0);
             loc /= 2;
         }
-        segment_tree[1][N - 1 - lo].first = va % _hash;
+        segment_tree[1][N - 1 - lo + _size].first = va % _hash;
         loc = (N - 1 - lo + _size) / 2;
         while (loc > 0) {
             _update(loc, 1);
@@ -52,7 +52,7 @@ struct palindrome_segment_tree {
     int N, _size;
     pii _ans, ans0, ans1;
     vector<pii> segment_tree[2];
-    vector<int> power_2;
+    vector<int> power_base;
     void _update(int lo, int ke)
     {
         assert(lo < _size);
@@ -61,7 +61,7 @@ struct palindrome_segment_tree {
     pii merge(pii a, pii b)
     {
         pii ret;
-        ret.first = (long long)(a.first) * power_2[b.second] % _hash;
+        ret.first = (long long)(a.first) * power_base[b.second] % _hash;
         ret.first = (ret.first + b.first) % _hash;
         ret.second = a.second + b.second;
         return ret;
