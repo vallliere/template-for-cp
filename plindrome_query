@@ -1,8 +1,10 @@
-template <typename T, int _base, int _hash>
+template <typename T>
 struct palindrome_segment_tree {
-    palindrome_segment_tree(T &arr)
+    palindrome_segment_tree(T &arr, int __base, int __hash)
     {
         N = arr.size();
+        _base = __base;
+        _hash = __hash;
         _size = 1;
         while (_size <= N)
             _size *= 2;
@@ -49,7 +51,7 @@ struct palindrome_segment_tree {
     }
 
    private:
-    int N, _size;
+    int N, _size, _base, _hash;
     pii _ans, ans0, ans1;
     vector<pii> segment_tree[2];
     vector<int> power_base;
