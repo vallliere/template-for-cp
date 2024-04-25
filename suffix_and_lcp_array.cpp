@@ -67,7 +67,7 @@ struct suffix_lcp {
         vector<int> inv_index(n);
         for (int i = 0; i < n; i++)
             inv_index[suffix_arr[i]] = i;
-        lcp_arr[0] = -1, len = 0;
+        lcp_arr[0] = 0, len = 0;
         for (int i = 0; i < n; i++)
             if (inv_index[i] > 0) {
                 while (min(i, suffix_arr[inv_index[i] - 1]) + len < n && str[i + len] == str[suffix_arr[inv_index[i] - 1] + len])
