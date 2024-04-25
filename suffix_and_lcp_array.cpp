@@ -39,10 +39,10 @@ struct suffix_lcp {
     {
         suffix_arr.resize(n);
         suffix_rank.resize(n + 1);
-        set<char> char_count(all(str));
+        set<char> char_check(all(str));
         map<char, int> char_rank;
-        auto it = char_count.begin();
-        for (int i = 1; it != char_count.end(); it++, i++)
+        auto it = char_check.begin();
+        for (int i = 1; it != char_check.end(); it++, i++)
             char_rank[*it] = i;
         for (int i = 0; i < n; i++)
             suffix_arr[i] = i, suffix_rank[i] = char_rank[str[i]];
