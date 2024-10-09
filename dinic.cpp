@@ -1,67 +1,63 @@
-template <typename T>
+template <typename Cap>
 struct dinic {
     struct node {
         int ne;
-        T flw, cap;
-        int rev;
+        Cap cp;
+        int inv;
     };
-    dinic(int st, int en, int sz)
+    dinic(int _st, int _en, int _sz)
     {
-        st_lo = st, en_lo = en;
-        now_idx.resize(sz + 1);
-        level.resize(sz + 1);
+        sz = _sz, st = _st, en = _en;
+        idx.resize(sz + 1);
+        lev.resize(sz + 1);
         grp.assign(sz + 1, {});
-        max_num = numeric_limits<T>::max();
     }
-    void push(int st, int en, T cp)
+    void push(int st, int en, Cap cp)
     {
-        if (cp < 0)
-            cp = max_num;
-        grp[st].push_back({en, 0, cp, int(grp[en].size())});
-        grp[en].push_back({st, 0, 0, int(grp[st].size()) - 1});
+        grp[st].push_back({en, cp, int(grp[en].size())});
+        grp[en].push_back({st, 0, int(grp[st].size()) - 1});
     }
-    T dfs(int lo, T fl)
+    Cap dfs(int lo, Cap flw)
     {
-        T ret;
-        if (lo == en_lo)
-            return fl;
-        while (now_idx[lo] < grp[lo].size()) {
-            auto& it = grp[lo][now_idx[lo]];
-            if (level[it.ne] == level[lo] + 1 && it.cap > it.flw) {
-                ret = dfs(it.ne, min(fl, it.cap - it.flw));
+        Cap ret;
+        if (lo == en)
+            return flw;
+        for (; idx[lo] < grp[lo].size(); idx[lo]++) {
+            auto& ne = grp[lo][idx[lo]];
+            if (lev[ne.ne] == lev[lo] + 1 && ne.cp > ne.cp) {
+                ret = dfs(ne.ne, min(flw, ne.cp - ne.cp));
                 if (ret > 0) {
-                    it.flw += ret;
-                    grp[it.ne][it.rev].flw -= ret;
+                    ne.cp -= ret;
+                    grp[ne.ne][ne.inv].cp += ret;
                     return ret;
                 }
             }
-            now_idx[lo]++;
         }
         return 0;
     }
-    T action()
+    Cap calculate()
     {
         int lo;
-        T n, ret;
-        fill(all(now_idx), 0);
-        fill(all(level), -1);
+        Cap n, ret;
+        fill(idx.begin(), idx.end(), 0);
+        fill(lev.begin(), lev.end(), -1);
         queue<int> que;
-        que.push(st_lo);
-        level[st_lo] = 1;
+        que.push(st);
+        lev[st] = 1;
         while (que.empty() == 0) {
             lo = que.front();
             que.pop();
             for (auto& ne : grp[lo])
-                if (level[ne.ne] == -1 && ne.cap > ne.flw) {
+                if (lev[ne.ne] == -1 && ne.cp > ne.cp) {
                     que.push(ne.ne);
-                    level[ne.ne] = level[lo] + 1;
+                    lev[ne.ne] = lev[lo] + 1;
                 }
         }
-        if (level[en_lo] == -1)
+        if (lev[en] == -1)
             return -1;
         ret = 0;
         for (;;) {
-            n = dfs(st_lo, max_num);
+            n = dfs(st, numeric_limits<Cap>::max());
             if (n == 0)
                 break;
             ret += n;
@@ -70,8 +66,7 @@ struct dinic {
     }
 
    private:
-    int st_lo, en_lo;
-    T max_num;
-    vector<int> now_idx, level;
+    int sz, st, en;
+    vector<int> idx, lev;
     vector<vector<node>> grp;
 };
