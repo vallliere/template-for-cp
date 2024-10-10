@@ -1,12 +1,12 @@
 template <typename Cap, typename Cost>
-struct mcmf {
+struct zkw_mcmf {
     struct node {
         int ne;
         Cap cp;
         Cost dt;
         int inv;
     };
-    mcmf(int _sz, int _st, int _en)
+    zkw_mcmf(int _sz, int _st, int _en)
     {
         sz = _sz, st = _st, en = _en;
         grp.resize(sz);
