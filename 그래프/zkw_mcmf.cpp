@@ -10,9 +10,9 @@ struct zkw_mcmf {
     {
         sz = _sz, st = _st, en = _en;
         grp.resize(sz);
-        vis.resize(sz);
+        idx = new int[sz + 1];
+        vis = new bool[sz + 1];
         dst.resize(sz);
-        idx.resize(sz);
     }
     void add_edge(int x, int y, Cap cp, Cost dt)
     {
@@ -46,9 +46,9 @@ struct zkw_mcmf {
         Cap va;
         pair<Cap, Cost> ret = {0, 0};
         for (;;) {
-            fill(idx.begin(), idx.end(), 0);
+            memset(idx, 0, sizeof(int) * sz);
             for (;;) {
-                fill(vis.begin(), vis.end(), 0);
+                memset(vis, 0, sizeof(bool) * sz);
                 va = dfs(st, numeric_limits<Cap>::max());
                 if (va == 0)
                     break;
@@ -63,9 +63,9 @@ struct zkw_mcmf {
 
    private:
     int sz, st, en;
+    int *idx;
+    bool *vis;
     vector<Cost> dst;
-    vector<bool> vis;
-    vector<int> idx;
     vector<vector<node>> grp;
     Cap dfs(int lo, Cap flw)
     {
@@ -75,7 +75,7 @@ struct zkw_mcmf {
             return flw;
         for (; idx[lo] < grp[lo].size(); idx[lo]++) {
             auto &ne = grp[lo][idx[lo]];
-            if (vis[ne.ne] == 0 && dst[ne.ne] == dst[lo] + ne.dt && ne.cp > 0) {
+            if (vis[ne.ne] == 0 && ne.cp > 0 && dst[ne.ne] == dst[lo] + ne.dt) {
                 va = dfs(ne.ne, min(flw, ne.cp));
                 if (va > 0) {
                     ne.cp -= va;
