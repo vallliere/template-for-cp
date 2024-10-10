@@ -24,7 +24,7 @@ struct potential_mcmf {
         queue<int> que;
         que.push(st);
         inn[st] = 1;
-        ptl[0] = 0;
+        ptl[st] = 0;
         while (que.size() > 0) {
             auto lo = que.front();
             que.pop();
