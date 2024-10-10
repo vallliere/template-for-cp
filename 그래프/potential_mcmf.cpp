@@ -1,12 +1,12 @@
 template <typename Cap, typename Cost>
-struct min_cost_max_flow {
+struct potential_mcmf {
     struct node {
         int ne;
         Cap cp;
         Cost dt;
         int inv;
     };
-    min_cost_max_flow(int _sz, int _st, int _en)
+    potential_mcmf(int _sz, int _st, int _en)
     {
         sz = _sz, st = _st, en = _en;
         grp.resize(sz);
