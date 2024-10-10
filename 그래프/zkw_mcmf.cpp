@@ -19,26 +19,26 @@ struct zkw_mcmf {
         grp[x].push_back({y, cp, dt, int(grp[y].size())});
         grp[y].push_back({x, 0, -dt, int(grp[x].size()) - 1});
     }
-    void bfs()
+    void spfa()
     {
         fill(dst.begin(), dst.end(), numeric_limits<Cost>::max());
-        vector<bool> vis(sz);
+        vector<bool> inn(sz);
         queue<int> que;
         que.push(st);
-        vis[st] = 1;
+        inn[st] = 1;
         dst[st] = 0;
         while (que.size() > 0) {
             auto lo = que.front();
             que.pop();
-            for (auto &ne : grp[lo]) {
-                if (ne.cp > 0) {
-                    dst[ne.ne] = min(dst[ne.ne], dst[lo] + ne.dt);
-                    if (vis[ne.ne] == 0) {
+            inn[lo] = 0;
+            for (auto &ne : grp[lo])
+                if (ne.cp > 0 && dst[ne.ne] > dst[lo] + ne.dt) {
+                    dst[ne.ne] = dst[lo] + ne.dt;
+                    if (inn[ne.ne] == 0) {
                         que.push(ne.ne);
-                        vis[ne.ne] = 1;
+                        inn[ne.ne] = 1;
                     }
                 }
-            }
         }
     }
     pair<Cap, Cost> calculate()
