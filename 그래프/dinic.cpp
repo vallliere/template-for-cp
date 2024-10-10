@@ -5,14 +5,14 @@ struct dinic {
         Cap cp;
         int inv;
     };
-    dinic(int _st, int _en, int _sz)
+    dinic(int _sz, int _st, int _en)
     {
         sz = _sz, st = _st, en = _en;
-        idx.resize(sz + 1);
-        lev.resize(sz + 1);
-        grp.assign(sz + 1, {});
+        idx.resize(sz);
+        lev.resize(sz);
+        grp.assign(sz, {});
     }
-    void push(int st, int en, Cap cp)
+    void add_edge(int st, int en, Cap cp)
     {
         grp[st].push_back({en, cp, int(grp[en].size())});
         grp[en].push_back({st, 0, int(grp[st].size()) - 1});
@@ -24,8 +24,8 @@ struct dinic {
             return flw;
         for (; idx[lo] < grp[lo].size(); idx[lo]++) {
             auto& ne = grp[lo][idx[lo]];
-            if (lev[ne.ne] == lev[lo] + 1 && ne.cp > ne.cp) {
-                ret = dfs(ne.ne, min(flw, ne.cp - ne.cp));
+            if (lev[ne.ne] == lev[lo] + 1 && ne.cp > 0) {
+                ret = dfs(ne.ne, min(flw, ne.cp));
                 if (ret > 0) {
                     ne.cp -= ret;
                     grp[ne.ne][ne.inv].cp += ret;
@@ -47,11 +47,12 @@ struct dinic {
         while (que.empty() == 0) {
             lo = que.front();
             que.pop();
-            for (auto& ne : grp[lo])
-                if (lev[ne.ne] == -1 && ne.cp > ne.cp) {
+            for (auto& ne : grp[lo]) {
+                if (lev[ne.ne] == -1 && ne.cp > 0) {
                     que.push(ne.ne);
                     lev[ne.ne] = lev[lo] + 1;
                 }
+            }
         }
         if (lev[en] == -1)
             return -1;
