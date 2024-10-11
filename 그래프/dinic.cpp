@@ -2,10 +2,10 @@ template <typename flow_t>
 struct dinic {
     struct edge {
         int v;
-        flow_t flw, cap;
+        flow_t cap;
         int rev;
-        edge(int _v, flow_t _fw, flow_t _cp, int _rev)
-            : v(_v), flw(_fw), cap(_cp), rev(_rev) {}
+        edge(int _v, flow_t _cp, int _rev)
+            : v(_v), cap(_cp), rev(_rev) {}
     };
     dinic(int _sz)
     {
@@ -16,8 +16,8 @@ struct dinic {
     }
     void add_edge(int u, int v, flow_t cap)
     {
-        grp[u].push_back({v, 0, cap, int(grp[v].size())});
-        grp[v].push_back({u, 0, 0, int(grp[u].size()) - 1});
+        grp[u].push_back({v, cap, int(grp[v].size())});
+        grp[v].push_back({u, 0, int(grp[u].size()) - 1});
     }
     void set_ST(int s, int t)
     {
@@ -30,11 +30,11 @@ struct dinic {
             return flw;
         for (; idx[lo] < grp[lo].size(); idx[lo]++) {
             auto& ne = grp[lo][idx[lo]];
-            if (lev[ne.v] == lev[lo] + 1 && ne.cap - ne.flw > 0) {
-                ret = dfs(ne.v, min(flw, ne.cap - ne.flw));
+            if (lev[ne.v] == lev[lo] + 1 && ne.cap > 0) {
+                ret = dfs(ne.v, min(flw, ne.cap));
                 if (ret > 0) {
-                    ne.flw += ret;
-                    grp[ne.v][ne.rev].flw -= ret;
+                    ne.cap -= ret;
+                    grp[ne.v][ne.rev].cap += ret;
                     return ret;
                 }
             }
@@ -54,7 +54,7 @@ struct dinic {
             lo = que.front();
             que.pop();
             for (auto& ne : grp[lo]) {
-                if (lev[ne.v] == -1 && ne.cap - ne.flw > 0) {
+                if (lev[ne.v] == -1 && ne.cap > 0) {
                     que.push(ne.v);
                     lev[ne.v] = lev[lo] + 1;
                 }
