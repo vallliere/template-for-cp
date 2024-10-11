@@ -1,73 +1,91 @@
-template <typename Cap>
+template <typename flow_t>
 struct dinic {
-    struct node {
-        int ne;
-        Cap cp;
-        int inv;
+    struct edge {
+        int v;
+        flow_t flw, cap;
+        int rev;
+        edge(int _v, flow_t _fw, flow_t _cp, int _rev)
+            : v(_v), flw(_fw), cap(_cp), rev(_rev) {}
     };
-    dinic(int _sz, int _st, int _en)
+    dinic(int _sz)
     {
-        sz = _sz, st = _st, en = _en;
+        sz = _sz;
         idx.resize(sz);
         lev.resize(sz);
         grp.assign(sz, {});
     }
-    void add_edge(int st, int en, Cap cp)
+    void add_edge(int u, int v, flow_t cap)
     {
-        grp[st].push_back({en, cp, int(grp[en].size())});
-        grp[en].push_back({st, 0, int(grp[st].size()) - 1});
+        grp[u].push_back({v, 0, cap, int(grp[v].size())});
+        grp[v].push_back({u, 0, 0, int(grp[u].size()) - 1});
     }
-    Cap dfs(int lo, Cap flw)
+    void set_ST(int s, int t)
     {
-        Cap ret;
-        if (lo == en)
+        S = s, T = t;
+    }
+    flow_t dfs(int lo, flow_t flw)
+    {
+        flow_t ret;
+        if (lo == T)
             return flw;
         for (; idx[lo] < grp[lo].size(); idx[lo]++) {
             auto& ne = grp[lo][idx[lo]];
-            if (lev[ne.ne] == lev[lo] + 1 && ne.cp > 0) {
-                ret = dfs(ne.ne, min(flw, ne.cp));
+            if (lev[ne.v] == lev[lo] + 1 && ne.cap - ne.flw > 0) {
+                ret = dfs(ne.v, min(flw, ne.cap - ne.flw));
                 if (ret > 0) {
-                    ne.cp -= ret;
-                    grp[ne.ne][ne.inv].cp += ret;
+                    ne.flw += ret;
+                    grp[ne.v][ne.rev].flw -= ret;
                     return ret;
                 }
             }
         }
         return 0;
     }
-    Cap calculate()
+    flow_t run()
     {
         int lo;
-        Cap n, ret;
+        flow_t va, ret;
         fill(idx.begin(), idx.end(), 0);
         fill(lev.begin(), lev.end(), -1);
         queue<int> que;
-        que.push(st);
-        lev[st] = 1;
+        que.push(S);
+        lev[S] = 1;
         while (que.empty() == 0) {
             lo = que.front();
             que.pop();
             for (auto& ne : grp[lo]) {
-                if (lev[ne.ne] == -1 && ne.cp > 0) {
-                    que.push(ne.ne);
-                    lev[ne.ne] = lev[lo] + 1;
+                if (lev[ne.v] == -1 && ne.cap - ne.flw > 0) {
+                    que.push(ne.v);
+                    lev[ne.v] = lev[lo] + 1;
                 }
             }
         }
-        if (lev[en] == -1)
+        if (lev[T] == -1)
             return -1;
         ret = 0;
         for (;;) {
-            n = dfs(st, numeric_limits<Cap>::max());
-            if (n == 0)
+            va = dfs(S, numeric_limits<flow_t>::max());
+            if (va == 0)
                 break;
-            ret += n;
+            ret += va;
+        }
+        return ret;
+    }
+    flow_t complete_run()
+    {
+        flow_t ret;
+        ret = 0;
+        for (;;) {
+            auto flw = run();
+            if (flw == -1)
+                break;
+            ret += flw;
         }
         return ret;
     }
 
    private:
-    int sz, st, en;
+    int sz, S, T;
     vector<int> idx, lev;
-    vector<vector<node>> grp;
+    vector<vector<edge>> grp;
 };
