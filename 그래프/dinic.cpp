@@ -12,7 +12,7 @@ struct dinic {
         sz = _sz;
         idx.resize(sz);
         lev.resize(sz);
-        grp.assign(sz, {});
+        grp.resize(sz);
     }
     void add_edge(int u, int v, flow_t cap)
     {
