@@ -21,15 +21,6 @@ struct hopcroft_karp {
     {
         return index_v[lo];
     }
-    void clear(int _sz, int _isz)
-    {
-        sz = _sz, isz = _isz;
-        grp.assign(sz, {});
-        que.assign(sz, 0);
-        index_u.assign(sz, -1), index_v.assign(isz, -1);
-        dsj_set.assign(sz, 0);
-        prev_u.assign(sz, 0);
-    }
     int matching()
     {
         int u, loc, flow, cur_flow, q_begin, q_end;
@@ -46,7 +37,7 @@ struct hopcroft_karp {
             cur_flow = 0;
             q_begin = 0, q_end = 0;
             loc = linked_list[sz].second;
-            while (loc != sz + 1) {
+            while (loc < sz + 1) {
                 if (index_u[loc] == -1) {
                     que[q_end++] = dsj_set[loc] = prev_u[loc] = loc;
                     last_rep[loc] = rep;
@@ -74,7 +65,7 @@ struct hopcroft_karp {
                         cur_flow++;
                         break;
                     }
-                    if (last_rep[index_v[v]] != rep) {
+                    if (last_rep[index_v[v]] < rep) {
                         que[q_end++] = index_v[v];
                         prev_u[index_v[v]] = u, dsj_set[index_v[v]] = dsj_set[u];
                         last_rep[index_v[v]] = rep;
