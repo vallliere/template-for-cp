@@ -1,5 +1,4 @@
 struct hopcroft_karp {
-    // Deeply grateful for the referenced : https://github.com/Aeren1564
     hopcroft_karp(int _sz, int _isz)
     {
         sz = _sz, isz = _isz;
