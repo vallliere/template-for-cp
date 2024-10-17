@@ -66,6 +66,7 @@ struct push_relabel {
                             for (int i = 0; i < N; ++i)
                                 if (hei[i] > hi && hei[i] < N) {
                                     cnt[hei[i]]--;
+                                    stk[hei[i]].clear();
                                     hei[i] = N + 1;
                                 }
                         hi = hei[u];
@@ -85,7 +86,6 @@ struct push_relabel {
    private:
     int N, S, T;
     vector<vector<edge>> grp;
-
     vector<int> idx, hei;
     vector<vector<int>> stk;
     vector<flow_t> ex;
