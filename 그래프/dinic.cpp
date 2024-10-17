@@ -50,7 +50,7 @@ struct dinic {
         queue<int> que;
         que.push(S);
         lev[S] = 1;
-        while (que.empty() == 0) {
+        while (que.size() > 0) {
             lo = que.front();
             que.pop();
             for (auto& ne : grp[lo]) {
