@@ -51,7 +51,7 @@ struct potential_mcmf {
             pq.push({0, st});
             dst[st] = 0;
             flw[st] = numeric_limits<Cap>::max();
-            while (pq.empty() == 0) {
+            while (pq.size() > 0) {
                 auto [dt, lo] = pq.top();
                 pq.pop();
                 if (vis[lo] == 1)
