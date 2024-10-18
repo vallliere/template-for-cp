@@ -1,56 +1,61 @@
-template <typename Cap, typename Cost>
+template <typename flow_t, typename cost_t>
 struct potential_mcmf {
-    struct node {
-        int ne;
-        Cap cp;
-        Cost dt;
-        int inv;
+    struct edge {
+        int v, rev;
+        flow_t flw;
+        cost_t cst;
+        edge(int _v, flow_t _f, cost_t _c, int _rev) : v(_v), flw(_f), cst(_c), rev(_rev) {}
     };
-    potential_mcmf(int _sz, int _st, int _en)
+    potential_mcmf(int _N)
     {
-        sz = _sz, st = _st, en = _en;
-        grp.resize(sz);
-        ptl.resize(sz);
+        N = _N;
+        S = T = -1;
+        grp.resize(N);
+        ptl.resize(N);
     }
-    void add_edge(int x, int y, Cap cp, Cost dt)
+    void add_edge(int u, int v, flow_t flow, cost_t cst)
     {
-        grp[x].push_back({y, cp, dt, int(grp[y].size())});
-        grp[y].push_back({x, 0, -dt, int(grp[x].size()) - 1});
+        grp[u].push_back({v, flow, cst, int(grp[v].size())});
+        grp[v].push_back({u, 0, -cst, int(grp[u].size()) - 1});
+    }
+    void set_ST(int _S, int _T)
+    {
+        S = _S, T = _T;
     }
     void spfa()
     {
-        fill(ptl.begin(), ptl.end(), numeric_limits<Cost>::max());
-        vector<bool> inn(sz);
+        fill(ptl.begin(), ptl.end(), numeric_limits<cost_t>::max());
+        vector<bool> inn(N);
         queue<int> que;
-        que.push(st);
-        inn[st] = 1;
-        ptl[st] = 0;
+        que.push(S);
+        inn[S] = 1;
+        ptl[S] = 0;
         while (que.size() > 0) {
             auto lo = que.front();
             que.pop();
             inn[lo] = 0;
             for (auto &ne : grp[lo])
-                if (ne.cp > 0 && ptl[ne.ne] > ptl[lo] + ne.dt) {
-                    ptl[ne.ne] = ptl[lo] + ne.dt;
-                    if (inn[ne.ne] == 0) {
-                        que.push(ne.ne);
-                        inn[ne.ne] = 1;
+                if (ne.flw > 0 && ptl[ne.v] > ptl[lo] + ne.cst) {
+                    ptl[ne.v] = ptl[lo] + ne.cst;
+                    if (inn[ne.v] == 0) {
+                        que.push(ne.v);
+                        inn[ne.v] = 1;
                     }
                 }
         }
     }
-    pair<Cap, Cost> calculate()
+    pair<flow_t, cost_t> min_cst_max_flow()
     {
-        pair<Cap, Cost> ret = {0, 0};
-        vector<node *> edg(sz);
-        vector<bool> vis(sz);
-        vector<Cap> flw(sz);
-        vector<Cost> dst(sz, numeric_limits<Cost>::max());
+        pair<flow_t, cost_t> ret = {0, 0};
+        vector<edge *> edg(N);
+        vector<bool> vis(N);
+        vector<flow_t> flw(N);
+        vector<cost_t> dst(N, numeric_limits<cost_t>::max());
         for (;;) {
-            priority_queue<pair<Cost, int>, vector<pair<Cost, int>>, greater<>> pq;
-            pq.push({0, st});
-            dst[st] = 0;
-            flw[st] = numeric_limits<Cap>::max();
+            priority_queue<pair<cost_t, int>, vector<pair<cost_t, int>>, greater<>> pq;
+            pq.push({0, S});
+            dst[S] = 0;
+            flw[S] = numeric_limits<flow_t>::max();
             while (pq.size() > 0) {
                 auto [dt, lo] = pq.top();
                 pq.pop();
@@ -58,40 +63,40 @@ struct potential_mcmf {
                     continue;
                 vis[lo] = 1;
                 for (auto &ne : grp[lo]) {
-                    if (vis[ne.ne] == 0 && ne.cp > 0 && dst[ne.ne] > dt + ne.dt + ptl[lo] - ptl[ne.ne]) {
-                        dst[ne.ne] = dt + ne.dt + ptl[lo] - ptl[ne.ne];
-                        pq.push({dst[ne.ne], ne.ne});
-                        flw[ne.ne] = min(flw[lo], ne.cp);
-                        edg[ne.ne] = &ne;
+                    if (vis[ne.v] == 0 && ne.flw > 0 && dst[ne.v] > dt + ne.cst + ptl[lo] - ptl[ne.v]) {
+                        dst[ne.v] = dt + ne.cst + ptl[lo] - ptl[ne.v];
+                        pq.push({dst[ne.v], ne.v});
+                        flw[ne.v] = min(flw[lo], ne.flw);
+                        edg[ne.v] = &ne;
                     }
                 }
             }
-            if (vis[en] == 0)
+            if (vis[T] == 0)
                 break;
-            for (int i = 0; i < sz; i++)
+            for (int i = 0; i < N; i++)
                 if (vis[i] == 1) {
-                    // dst[i] -= ptl[st] - ptl[i];
+                    // dst[i] -= ptl[S] - ptl[i];
                     // ptl[i] = dst[i];
                     ptl[i] += dst[i];
                     vis[i] = 0;
-                    dst[i] = numeric_limits<Cost>::max();
+                    dst[i] = numeric_limits<cost_t>::max();
                 }
-            Cap va = flw[en];
+            flow_t va = flw[T];
             ret.first += va;
-            ret.second += ptl[en] * va;
-            int lo = en;
-            while (lo != st) {
+            ret.second += ptl[T] * va;
+            int lo = T;
+            while (lo != S) {
                 auto ne = edg[lo];
-                ne->cp -= va;
-                grp[ne->ne][ne->inv].cp += va;
-                lo = grp[ne->ne][ne->inv].ne;
+                ne->flw -= va;
+                grp[ne->v][ne->rev].flw += va;
+                lo = grp[ne->v][ne->rev].v;
             }
         }
         return ret;
     }
 
    private:
-    int sz, st, en;
-    vector<Cost> ptl;
-    vector<vector<node>> grp;
+    int N, S, T;
+    vector<cost_t> ptl;
+    vector<vector<edge>> grp;
 };
