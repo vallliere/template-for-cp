@@ -1,4 +1,3 @@
-// Deeply grateful for the referenced : https://github.com/dacin21
 template <typename flow_t, typename cost_t, bool use_look_ahead = true>
 struct cost_scaling_mcmf {
     struct edge {
