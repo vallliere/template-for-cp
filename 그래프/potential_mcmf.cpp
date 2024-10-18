@@ -24,6 +24,8 @@ struct potential_mcmf {
     }
     void spfa()
     {
+        assert(S != -1 && T != -1);
+        
         fill(ptl.begin(), ptl.end(), numeric_limits<cost_t>::max());
         vector<bool> inn(N);
         queue<int> que;
@@ -46,6 +48,8 @@ struct potential_mcmf {
     }
     pair<flow_t, cost_t> min_cost_max_flow()
     {
+        assert(S != -1 && T != -1);
+        
         pair<flow_t, cost_t> ret = {0, 0};
         vector<edge *> edg(N);
         vector<bool> vis(N);
