@@ -1,12 +1,12 @@
 struct hopcroft_karp {
-    hopcroft_karp(int _sz, int _isz)
+    hopcroft_karp(int _N, int _iN)
     {
-        sz = _sz, isz = _isz;
-        grp.resize(sz);
-        que.resize(sz);
-        index_u.resize(sz, -1), index_v.resize(isz, -1);
-        dsj_set.resize(sz);
-        prev_u.resize(sz);
+        N = _N, iN = _iN;
+        grp.resize(N);
+        que.resize(N);
+        index_u.resize(N, -1), index_v.resize(iN, -1);
+        dsj_set.resize(N);
+        prev_u.resize(N);
     }
     void add_edge(int u, int v)
     {
@@ -24,19 +24,19 @@ struct hopcroft_karp {
     {
         int u, loc, flow, cur_flow, q_begin, q_end;
         flow = 0;
-        vector<pii> linked_list(sz + 2);
-        linked_list[0].first = sz, linked_list[sz - 1].second = sz + 1;
-        linked_list[sz].second = 0, linked_list[sz + 1].first = sz - 1;
-        for (int i = 0; i < sz - 1; i++)
+        vector<pii> linked_list(N + 2);
+        linked_list[0].first = N, linked_list[N - 1].second = N + 1;
+        linked_list[N].second = 0, linked_list[N + 1].first = N - 1;
+        for (int i = 0; i < N - 1; i++)
             linked_list[i].second = i + 1;
-        for (int i = 1; i < sz; i++)
+        for (int i = 1; i < N; i++)
             linked_list[i].first = i - 1;
-        vector<int> last_rep(sz);
+        vector<int> last_rep(N);
         for (int rep = 1;; rep++) {
             cur_flow = 0;
             q_begin = 0, q_end = 0;
-            loc = linked_list[sz].second;
-            while (loc < sz + 1) {
+            loc = linked_list[N].second;
+            while (loc < N + 1) {
                 if (index_u[loc] == -1) {
                     que[q_end++] = dsj_set[loc] = prev_u[loc] = loc;
                     last_rep[loc] = rep;
@@ -79,7 +79,7 @@ struct hopcroft_karp {
     }
 
    private:
-    int sz, isz;
+    int N, iN;
     vector<int> que, index_u, index_v, dsj_set, prev_u;
     vector<vector<int>> grp;
 };
