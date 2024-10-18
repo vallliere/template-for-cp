@@ -1,4 +1,3 @@
-// Deeply grateful for the referenced : https://github.com/Aeren1564
 struct hopcroft_karp {
     hopcroft_karp(int _N, int _iN)
     {
