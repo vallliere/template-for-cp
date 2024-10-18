@@ -4,11 +4,11 @@ template <typename flow_t>
 struct circulation : base_flow_class {
     using flow = base_flow_class;
 
-    circulation(int _sz) : flow(_sz + 2)
+    circulation(int _N) : flow(_N + 2)
     {
-        sz = _sz;
+        N = _N;
         dem_flow = 0;
-        dem.resize(sz);
+        dem.resize(N);
     }
     void add_edge(int u, int v, flow_t low, flow_t flw)
     {
@@ -22,16 +22,16 @@ struct circulation : base_flow_class {
     }
     flow_t run()
     {
-        flow::set_ST(sz, sz + 1);
+        flow::set_ST(N, N + 1);
         dem_flow = 0;
-        for (int i = 0; i < sz; i++) {
+        for (int i = 0; i < N; i++) {
             dem_flow += max(flow_t(0), dem[i]);
             if (dem[i] < 0)
-                flow::add_edge(sz, i, -dem[i]);
+                flow::add_edge(N, i, -dem[i]);
             else if (dem[i] > 0)
-                flow::add_edge(i, sz + 1, dem[i]);
+                flow::add_edge(i, N + 1, dem[i]);
         }
-        return cur_flow = flow::complete_run();
+        return cur_flow = flow::max_flow();
     }
     bool check_circulation()
     {
@@ -40,7 +40,7 @@ struct circulation : base_flow_class {
     }
 
    private:
-    int sz, S, T;
+    int N, S, T;
     flow_t cur_flow, dem_flow;
     vector<flow_t> dem;
 };
