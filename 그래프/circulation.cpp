@@ -2,38 +2,40 @@
 // ex : dinic<flow_t>
 template <typename flow_t>
 struct circulation : base_flow_class {
-    using flow = base_flow_class;
+    using base_flow = base_flow_class;
 
-    circulation(int _N) : flow(_N + 2)
+    circulation(int _N) : base_flow(_N + 2)
     {
         N = _N;
-        dem_flow = 0;
+        cur_flow = -1, dem_flow = 0;
         dem.resize(N);
     }
     void add_edge(int u, int v, flow_t low, flow_t flw)
     {
         dem[u] += low, dem[v] -= low;
-        flow::add_edge(u, v, flw - low);
+        base_flow::add_edge(u, v, flw - low);
     }
-    void set_ST(int _s, int _t)
+    void set_ST(int _S, int _T)
     {
-        S = _s, T = _t;
-        flow::add_edge(T, S, numeric_limits<flow_t>::max());
+        S = _S, T = _T;
+        base_flow::add_edge(T, S, numeric_limits<flow_t>::max());
     }
-    flow_t run()
+    flow_t max_flow()
     {
-        flow::set_ST(N, N + 1);
+        assert(S != -1 && T != -1);
+
+        base_flow::set_ST(N, N + 1);
         dem_flow = 0;
         for (int i = 0; i < N; i++) {
             dem_flow += max(flow_t(0), dem[i]);
             if (dem[i] < 0)
-                flow::add_edge(N, i, -dem[i]);
+                base_flow::add_edge(N, i, -dem[i]);
             else if (dem[i] > 0)
-                flow::add_edge(i, N + 1, dem[i]);
+                base_flow::add_edge(i, N + 1, dem[i]);
         }
-        return cur_flow = flow::max_flow();
+        return cur_flow = base_flow::max_flow();
     }
-    bool check_circulation()
+    bool check_is_circulation()
     {
         assert(cur_flow != -1);
         return dem_flow == cur_flow;
