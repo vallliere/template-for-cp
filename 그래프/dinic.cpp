@@ -17,9 +17,9 @@ struct dinic {
         grp[u].push_back({v, flow, int(grp[v].size())});
         grp[v].push_back({u, 0, int(grp[u].size()) - 1});
     }
-    void set_ST(int s, int t)
+    void set_ST(int _S, int _T)
     {
-        S = s, T = t;
+        S = _S, T = _T;
     }
     flow_t dfs(int lo, flow_t flw)
     {
@@ -41,6 +41,8 @@ struct dinic {
     }
     flow_t get_flow(flow_t flow)
     {
+        assert(S != -1 && T != -1);
+        
         fill(idx.begin(), idx.end(), 0);
         fill(lev.begin(), lev.end(), -1);
         queue<int> que;
