@@ -44,7 +44,7 @@ struct potential_mcmf {
                 }
         }
     }
-    pair<flow_t, cost_t> min_cst_max_flow()
+    pair<flow_t, cost_t> min_cost_max_flow()
     {
         pair<flow_t, cost_t> ret = {0, 0};
         vector<edge *> edg(N);
