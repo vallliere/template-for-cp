@@ -48,6 +48,31 @@ struct zkw_mcmf {
                 }
         }
     }
+    void dag_spfa()
+    {
+        assert(S != -1 && T != -1);
+
+        fill(dst.begin(), dst.end(), numeric_limits<cost_t>::max());
+        vector<int> ind(N);
+        for (int i = 0; i < N; i++)
+            for (edge &ne : grp[i])
+                if (ne.flw > 0)
+                    ind[ne.v]++;
+        queue<int> que;
+        que.push(S);
+        dst[S] = 0;
+        while (que.size() > 0) {
+            int lo = que.front();
+            que.pop();
+            for (edge &ne : grp[lo])
+                if (ne.flw > 0) {
+                    dst[ne.v] = min(dst[ne.v], dst[lo] + ne.cst);
+                    ind[ne.v]--;
+                    if (ind[ne.v] == 0)
+                        que.push(ne.v);
+                }
+        }
+    }
     pair<flow_t, cost_t> min_cost_max_flow()
     {
         assert(S != -1 && T != -1);
