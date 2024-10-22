@@ -46,6 +46,31 @@ struct potential_mcmf {
                 }
         }
     }
+    void dag_spfa()
+    {
+        assert(S != -1 && T != -1);
+
+        fill(ptl.begin(), ptl.end(), numeric_limits<cost_t>::max());
+        vector<int> ind(N);
+        for (int i = 0; i < N; i++)
+            for (edge &ne : grp[i])
+                if (ne.flw > 0)
+                    ind[ne.v]++;
+        queue<int> que;
+        que.push(S);
+        ptl[S] = 0;
+        while (que.size() > 0) {
+            int lo = que.front();
+            que.pop();
+            for (edge &ne : grp[lo])
+                if (ne.flw > 0) {
+                    ptl[ne.v] = min(ptl[ne.v], ptl[lo] + ne.cst);
+                    ind[ne.v]--;
+                    if (ind[ne.v] == 0)
+                        que.push(ne.v);
+                }
+        }
+    }
     pair<flow_t, cost_t> min_cost_max_flow()
     {
         assert(S != -1 && T != -1);
