@@ -1,8 +1,9 @@
-bool check_cross(pil line1_s, pil line1_e, pil line2_s, pil line2_e)
+
+bool check_cross(pair<int64_t, int64_t> line1_s, pair<int64_t, int64_t> line1_e, pair<int64_t, int64_t> line2_s, pair<int64_t, int64_t> line2_e)
 {
-    ll x, y;
-    function<ll(pil, pil, pil)> check_cross_ccw = [&](pil a, pil b, pil c) {
-        ll x1, y1, x2, y2, ke;
+    int64_t x, y;
+    function<int64_t(pair<int64_t, int64_t>, pair<int64_t, int64_t>, pair<int64_t, int64_t>)> check_cross_ccw = [&](pair<int64_t, int64_t> a, pair<int64_t, int64_t> b, pair<int64_t, int64_t> c) {
+        int64_t x1, y1, x2, y2, ke;
         x1 = b.first - a.first, y1 = b.second - a.second;
         x2 = c.first - a.first, y2 = c.second - a.second;
         ke = x1 * y2 - x2 * y1;
