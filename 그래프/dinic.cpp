@@ -5,9 +5,8 @@ struct dinic {
         flow_t flw;
         edge(int _v, flow_t _flw, int _rev) : v(_v), flw(_flw), rev(_rev) {}
     };
-    dinic(int _N)
+    dinic(int _N) : N(_N), S(-1), T(-1)
     {
-        N = _N;
         idx.resize(N);
         lev.resize(N);
         grp.resize(N);
@@ -21,28 +20,10 @@ struct dinic {
     {
         S = _S, T = _T;
     }
-    flow_t dfs(int lo, flow_t flw)
-    {
-        flow_t ret_flow;
-        if (lo == T)
-            return flw;
-        for (; idx[lo] < grp[lo].size(); idx[lo]++) {
-            auto& ne = grp[lo][idx[lo]];
-            if (lev[ne.v] == lev[lo] + 1 && ne.flw > 0) {
-                ret_flow = dfs(ne.v, min(flw, ne.flw));
-                if (ret_flow > 0) {
-                    ne.flw -= ret_flow;
-                    grp[ne.v][ne.rev].flw += ret_flow;
-                    return ret_flow;
-                }
-            }
-        }
-        return 0;
-    }
     flow_t get_flow(flow_t flow)
     {
         assert(S != -1 && T != -1);
-        
+
         fill(idx.begin(), idx.end(), 0);
         fill(lev.begin(), lev.end(), -1);
         queue<int> que;
@@ -87,4 +68,23 @@ struct dinic {
     int N, S, T;
     vector<int> idx, lev;
     vector<vector<edge>> grp;
+
+    flow_t dfs(int lo, flow_t flw)
+    {
+        flow_t ret_flow;
+        if (lo == T)
+            return flw;
+        for (; idx[lo] < grp[lo].size(); idx[lo]++) {
+            auto& ne = grp[lo][idx[lo]];
+            if (lev[ne.v] == lev[lo] + 1 && ne.flw > 0) {
+                ret_flow = dfs(ne.v, min(flw, ne.flw));
+                if (ret_flow > 0) {
+                    ne.flw -= ret_flow;
+                    grp[ne.v][ne.rev].flw += ret_flow;
+                    return ret_flow;
+                }
+            }
+        }
+        return 0;
+    }
 };
