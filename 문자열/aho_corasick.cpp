@@ -1,4 +1,4 @@
-template <typename converter_t>
+template <typename converter_t, int char_size>
 struct aho_corasick {
     struct node {
         int kmp, cnt;
@@ -40,8 +40,6 @@ struct aho_corasick {
     }
 
    private:
-    static constexpr int char_size = 100;
-
     int sz, root, new_node_index, is_init;
     converter_t cvt;
     vector<node> tri;
