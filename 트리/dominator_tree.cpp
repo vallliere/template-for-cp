@@ -1,55 +1,57 @@
-// https://github.com/justiceHui/icpc-teamnote/blob/master/code/Graph/DominatorTree.cpp
-vector<int> dominator_tree(const vector<vector<int>> &bse_grp, int st)
-{  // 0-based
-    int n;
-    n = bse_grp.size();
-    vector<vector<int>> rev_bse_grp(n), buf(n);
-    vector<int> ra(n), val(n), idom(n, -1), sdom(n, -1), tem, par(n), uni(n);
-    iota(all(ra), 0);
-    iota(all(val), 0);
-    for (int i = 0; i < n; i++)
-        for (auto ne : bse_grp[i])
-            rev_bse_grp[ne].push_back(i);
-    function<int(int)> find = [&](int lo) {
-        if (lo == ra[lo])
-            return lo;
-        int ret = find(ra[lo]);
-        if (sdom[val[lo]] > sdom[val[ra[lo]]])
-            val[lo] = val[ra[lo]];
-        return ra[lo] = ret;
-    };
-    function<void(int)> dfs = [&](int lo) {
-        sdom[lo] = tem.size();
-        tem.push_back(lo);
-        for (auto ne : bse_grp[lo])
-            if (sdom[ne] == -1)
-                par[ne] = lo, dfs(ne);
-    };
-    dfs(st);
-    reverse(all(tem));
-    for (auto &ne : tem) {
-        if (sdom[ne] == -1)
-            continue;
-        for (auto nd : rev_bse_grp[ne]) {
-            if (sdom[nd] == -1)
-                continue;
-            int x = val[find(nd), nd];
-            if (sdom[ne] > sdom[x])
-                sdom[ne] = sdom[x];
+struct dominator_tree {
+    vector<vector<int>> g, rg, bucket;
+    vector<int> arr, par, rev, sdom, dom, dsu, label;
+    int N, T;
+
+    dominator_tree(int n) : g(n), rg(n), bucket(n), arr(n, -1), par(n, -1), rev(n, -1), sdom(n, -1), dom(n, -1), dsu(n, 0), label(n, 0), N(n), T(0) {}
+    void add_edge(int u, int v) { g[u].push_back(v); }
+    void dfs(int u)
+    {
+        arr[u] = T, rev[T] = u, label[T] = sdom[T] = dsu[T] = T;
+        T++;
+        for (int w : g[u]) {
+            if (arr[w] == -1)
+                dfs(w), par[arr[w]] = arr[u];
+            rg[arr[w]].push_back(arr[u]);
         }
-        buf[tem[tem.size() - sdom[ne] - 1]].push_back(ne);
-        for (auto nd : buf[par[ne]])
-            uni[nd] = val[find(nd), nd];
-        buf[par[ne]].clear();
-        ra[ne] = par[ne];
     }
-    reverse(all(tem));
-    idom[st] = st;
-    for (auto ne : tem)  // WARNING : if different, takes idom
-        if (ne != st)
-            idom[ne] = sdom[ne] == sdom[uni[ne]] ? sdom[ne] : idom[uni[ne]];
-    for (auto ne : tem)
-        if (ne != st)
-            idom[ne] = tem[idom[ne]];
-    return idom;  // unreachable -> ret[i] = -1
-}
+    int find(int u, int x = 0)
+    {
+        if (u == dsu[u])
+            return x ? -1 : u;
+        int v = find(dsu[u], x + 1);
+        if (v < 0)
+            return u;
+        if (sdom[label[dsu[u]]] < sdom[label[u]])
+            label[u] = label[dsu[u]];
+        dsu[u] = v;
+        return x ? v : label[u];
+    }
+    vector<int> run(int root)
+    {
+        dfs(root);
+        iota(dom.begin(), dom.end(), 0);
+        for (int i = T - 1; i >= 0; --i) {
+            for (int ne : rg[i])
+                sdom[i] = min(sdom[i], sdom[find(ne)]);
+            if (i > 0)
+                bucket[sdom[i]].push_back(i);
+            for (int ne : bucket[i]) {
+                int v = find(ne);
+                if (sdom[v] == sdom[ne])
+                    dom[ne] = sdom[ne];
+                else
+                    dom[ne] = v;
+            }
+            if (i > 1)
+                dsu[i] = par[i];
+        }
+        for (int i = 1; i < T; i++)
+            if (dom[i] != sdom[i])
+                dom[i] = dom[dom[i]];
+        vector<int> outside_dom(N, -1);
+        for (int i = 1; i < T; i++)
+            outside_dom[rev[i]] = rev[dom[i]];
+        return outside_dom;
+    }
+};
