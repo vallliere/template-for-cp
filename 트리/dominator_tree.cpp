@@ -2,7 +2,6 @@ struct dominator_tree {
     vector<vector<int>> g, rg, bucket;
     vector<int> arr, par, rev, sdom, dom, dsu, label;
     int N, T;
-
     dominator_tree(int n) : g(n), rg(n), bucket(n), arr(n, -1), par(n, -1), rev(n, -1), sdom(n, -1), dom(n, -1), dsu(n, 0), label(n, 0), N(n), T(0) {}
     void add_edge(int u, int v) { g[u].push_back(v); }
     void dfs(int u)
