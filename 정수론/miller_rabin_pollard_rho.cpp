@@ -37,7 +37,7 @@ bool is_prime(long long va)
 {
     if (va < 2 || (va > 2 && va % 2 == 0))
         return 0;
-    else if (va < 2e9)
+    else if (va < 4759123141LL)
         return miller_rabin(va, {2, 7, 61});
     else
         return miller_rabin(va, {2, 325, 9375, 28178, 450775, 9780504, 1795265022});
