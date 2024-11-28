@@ -1,13 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-#define all(a) a.begin(), a.end()
-constexpr long long mod = (119 << 23) + 1;
-using ll = long long;
-using dll = long double;
-using pii = pair<int, int>;
-using pil = pair<ll, ll>;
-using pidl = pair<dll, dll>;
-
 struct functional_graph {
     functional_graph(int _N) : N(_N)
     {
@@ -47,10 +37,3 @@ struct functional_graph {
     vector<int> grp, dst, go_cycle;
     vector<vector<int>> cycle;
 };
-
-int32_t main()
-{
-    ios_base::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-
-    return 0;
-}
