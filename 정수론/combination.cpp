@@ -1,9 +1,8 @@
 struct combination {
-    combination(ll _n, ll _md)
+    combination(ll _N, ll _md) : N(_N), md(_md)
     {
-        md = _md;
-        fac.resize(2 * _n + 1);
-        ifac.resize(2 * _n + 1);
+        fac.resize(2 * N + 1);
+        ifac.resize(2 * N + 1);
         fac[0] = ifac[0] = 1;
         for (int i = 1; i < fac.size(); i++)
             fac[i] = fac[i - 1] * i % md;
@@ -13,34 +12,28 @@ struct combination {
     }
     ll power(ll a, ll b)
     {
-        ll ret;
-        ret = 1;
+        ll ret = 1;
         while (b) {
-            if (b & 1)
-                ret = ret * a % md;
-            a = a * a % md;
-            b >>= 1;
+            if (b & 1) ret = ret * a % md;
+            a = a * a % md, b >>= 1;
         }
         return ret;
     }
-    ll power(ll a, ll b, ll _md)
+    ll inverse(ll a)
     {
-        ll ret;
-        ret = 1;
-        while (b) {
-            if (b & 1)
-                ret = ret * a % _md;
-            a = a * a % _md;
-            b >>= 1;
-        }
-        return ret;
+        if (a > 0 && a < ifac.size()) return ifac[a] * fac[a - 1];
+        return power(a, md - 2);
     }
-    ll nCr(ll a, ll b) { return fac[a] * ifac[b] % md * ifac[a - b] % md; }
+    ll nCr(ll a, ll b)
+    {
+        if (a < b) return 0;
+        return fac[a] * ifac[b] % md * ifac[a - b] % md;
+    }
     ll nHr(ll a, ll b) { return nCr(a + b - 1, b); }
     ll factorial(ll a) { return fac[a]; };
     ll inverse_factorial(ll a) { return ifac[a]; }
 
    private:
-    ll md;
+    ll N, md;
     vector<ll> fac, ifac;
 };
