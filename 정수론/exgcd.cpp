@@ -1,5 +1,5 @@
 pil exgcd(ll a, ll b)
-{
+{ // a * x + b * y = 1 -> return {x, y}
     pil ret;
     if (b == 0)
         return {1, 0};
