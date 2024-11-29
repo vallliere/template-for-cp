@@ -21,7 +21,7 @@ struct combination {
     }
     ll inverse(ll a)
     {
-        if (a > 0 && a < N) return ifac[a] * fac[a - 1];
+        if (a > 0 && a < N) return ifac[a] * fac[a - 1] % md;
         return power(a, md - 2);
     }
     ll nCr(ll a, ll b)
