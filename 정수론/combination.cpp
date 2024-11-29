@@ -1,8 +1,8 @@
 struct combination {
     combination(ll _N, ll _md) : N(_N), md(_md)
     {
-        fac.resize(2 * N + 1);
-        ifac.resize(2 * N + 1);
+        fac.resize(N);
+        ifac.resize(N);
         fac[0] = ifac[0] = 1;
         for (int i = 1; i < fac.size(); i++)
             fac[i] = fac[i - 1] * i % md;
@@ -21,11 +21,12 @@ struct combination {
     }
     ll inverse(ll a)
     {
-        if (a > 0 && a < ifac.size()) return ifac[a] * fac[a - 1];
+        if (a > 0 && a < N) return ifac[a] * fac[a - 1];
         return power(a, md - 2);
     }
     ll nCr(ll a, ll b)
     {
+        assert(max(a, b) < N);
         if (a < b) return 0;
         return fac[a] * ifac[b] % md * ifac[a - b] % md;
     }
