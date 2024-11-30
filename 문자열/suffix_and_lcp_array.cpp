@@ -68,7 +68,7 @@ struct suffix_lcp {
         len = 0;
         for (int i = 0; i < n; i++)
             if (inv_index[i] > 0) {
-                while (min(i, suffix_arr[inv_index[i] - 1]) + len < n && str[i + len] == str[suffix_arr[inv_index[i] - 1] + len])
+                while (max(i, suffix_arr[inv_index[i] - 1]) + len < n && str[i + len] == str[suffix_arr[inv_index[i] - 1] + len])
                     len++;
                 lcp_arr[inv_index[i]] = len;
                 len = max(0, len - 1);
