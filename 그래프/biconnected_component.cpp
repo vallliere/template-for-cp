@@ -2,7 +2,6 @@ struct biconnected_component {
     biconnected_component(int _N) : N(_N)
     {
         grp.resize(N);
-        bcc.resize(N);
         dfn.resize(N);
     }
     void add_edge(int u, int v)
@@ -67,10 +66,8 @@ struct biconnected_component {
                     ret = min(ret, va);
                     if (va >= dfn[lo]) {
                         bcc.push_back({});
-                        do {
-                            bcc.back().push_back(stk.back());
-                            stk.pop_back();
-                        } while (bcc.back().back() != id);
+                        do bcc.back().push_back(stk.back()), stk.pop_back();
+                        while (bcc.back().back() != id);
                     }
                 }
             }
