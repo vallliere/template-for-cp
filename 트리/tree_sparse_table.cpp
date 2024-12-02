@@ -58,6 +58,11 @@ struct tree_sparse_table {  // 1-based tree
         }
         return go_up_index(lo, st);
     }
+    void update()
+    {
+        // make new sparse table
+        update_dfs(root, 0);
+    }
 
    private:
     int root, N, sp;
@@ -77,5 +82,8 @@ struct tree_sparse_table {  // 1-based tree
                 nds[lo] += nds[ne];
                 idst_sum[lo] += idst_sum[ne] + nds[ne] * dt;
             }
+    }
+    void update_dfs(int lo, int be)
+    {
     }
 };
