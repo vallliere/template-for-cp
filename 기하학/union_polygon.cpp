@@ -1,4 +1,4 @@
-struct complex_polygon {
+struct union_polygon {
     using coord_t = long double;  // if you need to use get_union_area, coord_t must be float type
     using point_t = complex<coord_t>;
     void add_point(coord_t x, coord_t y) { pol.push_back({x, y}); }
@@ -21,7 +21,7 @@ struct complex_polygon {
             ret += cross(pol[i], pol[(i + 1) % pol.size()]);
         return ret / 2;
     }
-    static coord_t get_union_area(vector<complex_polygon> pols)
+    static coord_t get_union_area(vector<union_polygon> pols)
     {
         int n, m, cw1, cw2;
         coord_t le, be, ar1, ar2, ret;
