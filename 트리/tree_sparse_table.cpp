@@ -71,6 +71,7 @@ struct tree_sparse_table {  // 1-based tree
     vector<vector<pair<int, cost_t>>> grp;
     vector<vector<int>> spt;
 
+    // remember grp[lo] -> ne has ancestor
     void dfs(int lo, int be, cost_t de)
     {
         spt[lo][0] = be, nds[lo] = 1, dst[lo] = de, dep[lo] = dep[be] + 1;
