@@ -14,11 +14,12 @@ struct tree_sparse_table {  // 1-based tree
         grp[u].push_back({v, dt});
         grp[v].push_back({u, dt});
     }
-    void init(int _root)
+    void init(int _root, bool norm_tree = true)
     {
         root = _root;
         spt.resize(N + 1, vector<int>(sp));
-        dst[0] = numeric_limits<cost_t>::min() / 4;
+        if (norm_tree)
+            normalize_tree(root, 0);
         dfs(root, 0, 0);
     }
     int longest_common_ancestor(int u, int v)
@@ -71,7 +72,6 @@ struct tree_sparse_table {  // 1-based tree
     vector<vector<pair<int, cost_t>>> grp;
     vector<vector<int>> spt;
 
-    // remember grp[lo] -> ne has ancestor
     void dfs(int lo, int be, cost_t de)
     {
         spt[lo][0] = be, nds[lo] = 1, dst[lo] = de, dep[lo] = dep[be] + 1;
@@ -84,8 +84,18 @@ struct tree_sparse_table {  // 1-based tree
                 idst_sum[lo] += idst_sum[ne] + nds[ne] * dt;
             }
     }
-    void update_dfs(int lo, int be)
+    void normalize_tree(int lo, int be)
     {
+        vector<pair<int, cost_t>> tem;
+        for (auto [ne, dt] : grp[lo])
+            if (ne != be) {
+                normalize_tree(ne, lo);
+                tem.push_back({ne, dt});
+            }
+        grp[lo].swap(tem);
+    }
+    void update_dfs(int lo, int be)
+    {  // if norm_tree is false : remember grp[lo] -> ne has ancestor
         for (auto [ne, dt] : grp[lo])
             if (ne != be) {
                 update_dfs(ne, lo);
