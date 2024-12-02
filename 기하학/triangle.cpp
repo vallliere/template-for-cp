@@ -1,6 +1,6 @@
 namespace triangle {
-using float64_t = long double;
-array<float64_t, 2> incenter(array<float64_t, 2> a, array<float64_t, 2> b, array<float64_t, 2> c)
+using float128_t = long double;
+array<float128_t, 2> incenter(array<float128_t, 2> a, array<float128_t, 2> b, array<float128_t, 2> c)
 {
     dll x, y, ra, rb, rc;
     ra = sqrt((b[0] - c[0]) * (b[0] - c[0]) + (b[1] - c[1]) * (b[1] - c[1]));
@@ -10,7 +10,7 @@ array<float64_t, 2> incenter(array<float64_t, 2> a, array<float64_t, 2> b, array
     y = (ra * a[1] + rb * b[1] + rc * c[1]) / (ra + rb + rc);
     return {x, y};
 }
-array<float64_t, 2> circumcenter(array<float64_t, 2> a, array<float64_t, 2> b, array<float64_t, 2> c)
+array<float128_t, 2> circumcenter(array<float128_t, 2> a, array<float128_t, 2> b, array<float128_t, 2> c)
 {
     dll x, y, d;
     d = (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1])) * 2;
