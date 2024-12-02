@@ -86,5 +86,9 @@ struct tree_sparse_table {  // 1-based tree
     }
     void update_dfs(int lo, int be)
     {
+        for (auto [ne, dt] : grp[lo])
+            if (ne != be) {
+                update_dfs(ne, lo);
+            }
     }
 };
