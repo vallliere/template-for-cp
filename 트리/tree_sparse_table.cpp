@@ -66,8 +66,8 @@ struct tree_sparse_table {  // 1-based tree
 
    private:
     int root, N, sp;
-    vector<int> nds, dep;          // nds : count(child + node), dep : count(root -> node)
-    vector<cost_t> dst, idst_sum;  // dst : root -> node, idst : node -> child
+    vector<int> nds, dep;          // nds : count(descendants + node), dep : count(root -> node)
+    vector<cost_t> dst, idst_sum;  // dst : |root -> node|, idst : |node -> descendants|
     vector<vector<pair<int, cost_t>>> grp;
     vector<vector<int>> spt;
 
