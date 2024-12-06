@@ -9,7 +9,7 @@ struct biconnected_component {
     {
         sort(edg.begin(), edg.end());
         edg.erase(unique(edg.begin(), edg.end()), edg.end());
-        edg_bcc_id.resize(edg.size());
+        edg_bcc_index.resize(edg.size());
         for (int i = 0; i < edg.size(); i++) {
             auto [u, v] = edg[i];
             grp[u].push_back({v, i});
@@ -27,7 +27,7 @@ struct biconnected_component {
                 is_bridge[bcc[i][0]] = 1;
             }
             for (auto id : bcc[i]) {
-                edg_bcc_id[id] = i;
+                edg_bcc_index[id] = i;
                 auto [u, v] = edg[id];
                 chk[u] = chk[v] = 1;
             }
@@ -48,7 +48,7 @@ struct biconnected_component {
 
     int N;
     vector<bool> is_cut_v, is_bridge;
-    vector<int> cut_v, bridge, edg_bcc_id;
+    vector<int> cut_v, bridge, edg_bcc_index;
     vector<array<int, 2>> edg;
     vector<vector<int>> bcc;
     vector<vector<array<int, 2>>> grp;
