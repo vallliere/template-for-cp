@@ -6,7 +6,7 @@ struct block_cut_tree : public biconnected_component {
     {
         biconnected_component::init();
         BN = biconnected_component::bcc.size();
-        blk.resize(BN + N);
+        blk.resize(BN + N); // cut(i >= BN) -> blk(i < BN) -> cut(i >= BN) ...
         vector<bool> chk(N);
         for (int i = 0; i < BN; i++) {
             for (auto id : biconnected_component::bcc[i]) {
