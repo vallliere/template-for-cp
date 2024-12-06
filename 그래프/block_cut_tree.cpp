@@ -6,27 +6,22 @@ struct block_cut_tree : public biconnected_component {
     {
         biconnected_component::init();
         BN = biconnected_component::bcc.size();
-        blk.resize(BN);
-        cut.resize(N);
-        vector<bool> chk_cut(N);
+        blk.resize(BN + N);
+        vector<bool> chk(N);
         for (int i = 0; i < BN; i++) {
             for (auto id : biconnected_component::bcc[i]) {
-                auto [u, v] = biconnected_component::edg[id];
-                if (biconnected_component::is_cut_v[u])
-                    chk_cut[u] = 1;
-                if (biconnected_component::is_cut_v[v])
-                    chk_cut[v] = 1;
+                for (auto ne : edg[id])
+                    if (biconnected_component::is_cut_v[ne])
+                        chk[ne] = 1;
             }
             for (auto id : biconnected_component::bcc[i]) {
-                auto [u, v] = biconnected_component::edg[id];
-                if (chk_cut[u])
-                    chk_cut[u] = 0, cut[u].push_back(i), blk[i].push_back(u);
-                if (chk_cut[v])
-                    chk_cut[v] = 0, cut[v].push_back(i), blk[i].push_back(v);
+                for (auto ne : edg[id])
+                    if (biconnected_component::is_cut_v[ne])
+                        chk[ne] = 0, blk[ne + BN].push_back(i), blk[i].push_back(ne + BN);
             }
         }
     }
 
     int BN, N;
-    vector<vector<int>> blk, cut;
+    vector<vector<int>> blk;
 };
