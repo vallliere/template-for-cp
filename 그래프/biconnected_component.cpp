@@ -4,14 +4,17 @@ struct biconnected_component {
         grp.resize(N);
         dfn.resize(N);
     }
-    void add_edge(int u, int v)
-    {
-        grp[u].push_back({v, int(edg.size())});
-        grp[v].push_back({u, int(edg.size())});
-        edg.push_back({u, v});
-    }
+    void add_edge(int u, int v) { edg.push_back({min(u, v), max(u, v)}); }
     void init()
     {
+        sort(edg.begin(), edg.end());
+        edg.erase(unique(edg.begin(), edg.end()), edg.end());
+        edg_bcc_id.resize(edg.size());
+        for (int i = 0; i < edg.size(); i++) {
+            auto [u, v] = edg[i];
+            grp[u].push_back({v, i});
+            grp[v].push_back({u, i});
+        }
         for (int i = 0; i < N; i++)
             if (dfn[i] == 0)
                 dfs(i, -1);
@@ -24,6 +27,7 @@ struct biconnected_component {
                 is_bridge[bcc[i][0]] = 1;
             }
             for (auto id : bcc[i]) {
+                edg_bcc_id[id] = i;
                 auto [u, v] = edg[id];
                 chk[u] = chk[v] = 1;
             }
@@ -44,12 +48,13 @@ struct biconnected_component {
 
     int N;
     vector<bool> is_cut_v, is_bridge;
-    vector<int> dfn, stk, cut_v, bridge;
+    vector<int> cut_v, bridge, edg_bcc_id;
     vector<array<int, 2>> edg;
     vector<vector<int>> bcc;
     vector<vector<array<int, 2>>> grp;
 
    private:
+    vector<int> dfn, stk;
     int dfs(int lo, int be)
     {
         static int dn = 1;
@@ -58,10 +63,11 @@ struct biconnected_component {
         ret = dfn[lo];
         for (auto [ne, id] : grp[lo])
             if (ne != be) {
+                if (dfn[lo] > dfn[ne])
+                    stk.push_back(id);
                 if (dfn[ne] != 0)
                     ret = min(ret, dfn[ne]);
                 else {
-                    stk.push_back(id);
                     auto va = dfs(ne, lo);
                     ret = min(ret, va);
                     if (va >= dfn[lo]) {
