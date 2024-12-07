@@ -3,6 +3,7 @@ struct matrix {
     matrix() : row(0), col(0) {}
     matrix(int _row, int _col) : row(_row), col(_col) { arr.resize(row, vector<T>(col, 0)); }
     matrix(vector<vector<T>> _arr) : arr(_arr) { row = arr.size(), col = arr[0].size(); }
+    matrix(initializer_list<initializer_list<T>> _arr) : arr(_arr.begin(), _arr.end()), row(_arr.size()), col(_arr.begin()->size()) {}
     void identity()
     {
         assert(row == col);
