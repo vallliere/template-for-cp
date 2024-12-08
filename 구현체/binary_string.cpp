@@ -101,7 +101,8 @@ struct binary_string {  // 12 : front(0) - 1010 - end(|N| - 1)
 
     binary_string &operator<<=(int va)
     {
-        while (va-- > 0) N.push_back('0');
+        if (N.size() > 1 || N.back() != '0')
+            while (va-- > 0) N.push_back('0');
         return *this;
     }
 
