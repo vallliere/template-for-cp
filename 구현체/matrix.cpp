@@ -1,8 +1,10 @@
+
 template <typename T>
 struct matrix {
     matrix() : row(0), col(0) {}
-    matrix(int _row, int _col) : row(_row), col(_col) { arr.resize(row, vector<T>(col, 0)); }
-    matrix(vector<vector<T>> _arr) : arr(_arr) { row = arr.size(), col = arr[0].size(); }
+    matrix(int _row, int _col) : row(_row), col(_col) { arr.resize(row, vector<T>(col)); }
+    matrix(int _row, int _col, T _va) : row(_row), col(_col) { arr.resize(row, vector<T>(col, _va)); }
+    matrix(vector<vector<T>> _arr) : row(_arr.size()), col(_arr.begin()->size()), arr(_arr) {}
     matrix(initializer_list<initializer_list<T>> _arr) : arr(_arr.begin(), _arr.end()), row(_arr.size()), col(_arr.begin()->size()) {}
     void identity()
     {
@@ -47,7 +49,6 @@ struct matrix {
                 arr[i][p] -= va.arr[i][p];
         return *this;
     }
-
     constexpr matrix &operator*=(const matrix &va)
     {
         assert(col == va.row);
