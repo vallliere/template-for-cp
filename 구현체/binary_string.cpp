@@ -1,5 +1,5 @@
 struct binary_string {
-    binary_string() { N.push_back('0'); }
+    binary_string() : N(list<char>{'0'}) {}
     binary_string(list<char> _N) : N(_N) { trim_zero(); }
     binary_string(string _N) : N(_N.begin(), _N.end()) { trim_zero(); }
     binary_string(uint64_t _N)
