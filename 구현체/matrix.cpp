@@ -8,7 +8,7 @@ struct matrix {
     void identity()
     {
         assert(row == col);
-        clear();
+        clear(0);
         for (int i = 0; i < row; i++)
             arr[i][i] = 1;
     }
