@@ -1,4 +1,3 @@
-
 template <typename T>
 struct matrix {
     matrix() : row(0), col(0) {}
@@ -13,11 +12,11 @@ struct matrix {
         for (int i = 0; i < row; i++)
             arr[i][i] = 1;
     }
-    void clear()
+    void clear(T va)
     {
         for (int i = 0; i < row; i++)
             for (int p = 0; p < col; p++)
-                arr[i][p] = 0;
+                arr[i][p] = va;
     }
     matrix pow(int64_t va)
     {
