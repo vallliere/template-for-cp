@@ -1,4 +1,4 @@
-struct binary_string {
+struct binary_string {  // 12 : front(0) - 1010 - end(|N| - 1)
     binary_string() : N(list<char>{'0'}) {}
     binary_string(list<char> _N) : N(_N) { trim_zero(); }
     binary_string(string _N) : N(_N.begin(), _N.end()) { trim_zero(); }
