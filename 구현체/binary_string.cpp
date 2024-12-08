@@ -71,17 +71,18 @@ struct binary_string {  // 12 : front(0) - 1010 - end(|N| - 1)
     binary_string &operator/=(const binary_string &va)
     {
         if (va.N.size() == 1 && va.N.front() == '0') throw runtime_error("Divide by zero");
-        string ret;
+        vector<bool> ret;
         binary_string dv;
         for (auto ne : N) {
             dv.N.push_back(ne), dv.trim_zero();
             int c = 0;
             if (va <= dv) dv -= va, c++;
-            ret.push_back(c + '0');
+            ret.push_back(c);
         }
         N.clear();
-        for (auto c : ret) N.push_back(c);
-        trim_zero();
+        for (auto ne : ret)
+            if (!N.empty() || ne > 0) N.push_back(ne + '0');
+        if (N.empty()) N.push_back('0');
         return *this;
     }
 
