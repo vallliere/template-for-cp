@@ -26,6 +26,7 @@ struct binary_string {
         return *this;
     }
 
+    // remember it works only N >= va.N
     binary_string &operator-=(const binary_string &va)
     {
         int b, x, y, tm;
@@ -56,7 +57,8 @@ struct binary_string {
             }
         }
         string ret = "";
-        for (int i = 0; i < mul.size(); i++) ret += mul[i] + '0';
+        for (int i = 0; i < mul.size(); i++)
+            if (ret.size() > 0 || mul[i] > 0) ret += mul[i] + '0';
         N.swap(ret);
         trim_zero();
         return *this;
