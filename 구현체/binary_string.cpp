@@ -154,5 +154,15 @@ struct binary_string {
         while (N.size() > 1 && N.front() == '0') N.pop_front();
     }
 
+    uint64_t bit_to_int()
+    {
+        if (N.size() > 64) throw runtime_error("|N| exceeds 64");
+        uint64_t ret;
+        ret = 0;
+        for (auto ne : N)
+            ret <<= 1, ret += ne - '0';
+        return ret;
+    }
+
     list<char> N;
 };
