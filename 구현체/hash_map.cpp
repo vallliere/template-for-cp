@@ -1,7 +1,5 @@
 
 #include <bits/extc++.h>
-mt19937 seed(chrono::steady_clock::now().time_since_epoch().count());
-uniform_int_distribution<> gen_random(1e8, 1e9);
 
 struct splitmix64_hash {
     static uint64_t splitmix64(uint64_t va)
@@ -11,11 +9,28 @@ struct splitmix64_hash {
         va = (va ^ (va >> 27)) * 0x94d049bb133111eb;
         return va ^ (va >> 31);
     }
-    size_t operator()(uint64_t va) const
+
+    template <typename T>
+    typename enable_if<is_arithmetic<T>::value, size_t>::type
+    operator()(T va) const
     {
         static const uint64_t FIXED_RANDOM = gen_random(seed);
-        return splitmix64(va + FIXED_RANDOM);
+        return splitmix64(static_cast<uint64_t>(va) + FIXED_RANDOM);
     }
+
+    template <typename T>
+    typename enable_if<!is_arithmetic<T>::value, size_t>::type
+    operator()(const T& va) const
+    {
+        static const uint64_t FIXED_RANDOM = gen_random(seed);
+        uint64_t hash = FIXED_RANDOM;
+        for (const auto& ne : va)
+            hash ^= splitmix64(static_cast<uint64_t>(ne) + hash);
+        return hash;
+    }
+
+    static inline mt19937 seed{static_cast<unsigned int>(chrono::steady_clock::now().time_since_epoch().count())};
+    static inline uniform_int_distribution<uint64_t> gen_random{static_cast<uint64_t>(1e8), static_cast<uint64_t>(1e12)};
 };
 template <typename type1, typename type2, typename hash_t = splitmix64_hash>
 using hash_map = __gnu_pbds::gp_hash_table<type1, type2, hash_t>;
