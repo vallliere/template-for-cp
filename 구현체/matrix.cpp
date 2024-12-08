@@ -19,7 +19,7 @@ struct matrix {
             for (int p = 0; p < col; p++)
                 arr[i][p] = 0;
     }
-    matrix pow(ll va)
+    matrix pow(int64_t va)
     {
         assert(row == col);
         matrix pw(arr), ret(row, col);
