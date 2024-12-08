@@ -1,207 +1,208 @@
+template <uint64_t N>
 struct dynamic_bitset {
-    typedef unsigned long long ull;
-    dynamic_bitset(int n)
+    dynamic_bitset()
     {
-        assert(n > 0);
-        sz = n;
-        bit_s.resize((sz - 1) / 64 + 1);
-        max_64 = (1ull << 63) | ((1ull << 63) - 1ull);
-        del_carry = max_64 >> (64 - sz % 64) % 64;
+        arr.resize((N - 1) / 64 + 1, 0);
+        if (N % 64 == 0)
+            del_carry = max64;
+        else
+            del_carry = (1ULL << (N % 64)) - 1ULL;
     }
-    void set(int lo = -1)
-    {
-        assert(lo < sz);
-        if (lo == -1) {
-            fill(bit_s.begin(), bit_s.end(), max_64);
-            bit_s.back() &= del_carry;
+
+    struct proxy_bit {
+        dynamic_bitset& bt;
+        int idx;
+        proxy_bit(dynamic_bitset& _bt, int _idx) : bt(_bt), idx(_idx) {}
+
+        operator bool() const { return (bt.arr[idx / 64] >> (idx % 64)) & 1; }
+
+        proxy_bit& operator=(bool val)
+        {
+            if (val)
+                bt.set(idx);
+            else
+                bt.reset(idx);
+            return *this;
         }
-        else
-            bit_s[lo / 64] |= 1ull << (lo % 64);
-    }
-    void reset(int lo = -1)
+
+        proxy_bit& operator=(const proxy_bit& other) { return *this = (bool)other; }
+    };
+
+    bool operator[](int lo) const
     {
-        assert(lo < sz);
-        if (lo == -1)
-            fill(bit_s.begin(), bit_s.end(), 0ull);
-        else
-            bit_s[lo / 64] &= ~(1ull << (lo % 64));
+        assert(lo < N);
+        return (arr[lo / 64] >> (lo % 64)) & 1;
     }
-    void flip(int lo)
+
+    proxy_bit operator[](int lo)
     {
-        assert(lo < sz);
-        bit_s[lo / 64] ^= 1ull << (lo % 64);
+        assert(lo < N);
+        return proxy_bit(*this, lo);
     }
-    int size()
+
+    const dynamic_bitset& operator<<=(const int& va)
     {
-        return sz;
-    }
-    int count()
-    {
-        int i, cnt;
-        cnt = 0;
-        for (i = 0; i < bit_s.size(); i++)
-            cnt += __builtin_popcount(bit_s[i]);
-        return cnt;
-    }
-    void print()
-    {
-        int i, p;
-        string str;
-        for (i = sz % 64; i >= 0; i--)
-            str.push_back('0' + ((bit_s.back() >> i) & 1ull));
-        for (i = bit_s.size() - 2; i >= 0; i--)
-            for (p = 63; p >= 0; p--)
-                str.push_back('0' + ((bit_s[i] >> p) & 1ull));
-        cout << str << "\n";
-    }
-    bool all_bit()
-    {
-        int i;
-        if (bit_s.back() != del_carry)
-            return false;
-        for (i = 0; i < bit_s.size() - 1; i++)
-            if (bit_s[i] != max_64)
-                return false;
-        return true;
-    }
-    bool any_bit()
-    {
-        int i;
-        for (i = 0; i < bit_s.size(); i++)
-            if (bit_s[i] != 0)
-                return true;
-        return false;
-    }
-    bool none_bit()
-    {
-        int i;
-        for (i = 0; i < bit_s.size(); i++)
-            if (bit_s[i] != 0)
-                return false;
-        return true;
-    }
-    bool operator[](const int& va)
-    {
-        assert(va < sz);
-        return (bit_s[va / 64] >> (va % 64)) != 0ull;
-    }
-    dynamic_bitset operator<<(const int& va)
-    {
-        dynamic_bitset ret(sz);
-        ret.bit_s = bit_s;
-        ret.left(va);
-        return ret;
-    }
-    dynamic_bitset& operator<<=(const int& va)
-    {
-        this->left(va);
-        return *this;
-    }
-    dynamic_bitset operator>>(const int& va)
-    {
-        dynamic_bitset ret(sz);
-        ret.bit_s = bit_s;
-        ret.right(va);
-        return ret;
-    }
-    dynamic_bitset& operator>>=(const int& va)
-    {
-        this->right(va);
-        return *this;
-    }
-    dynamic_bitset operator|(const dynamic_bitset& va)
-    {
-        int i;
-        assert(va.sz == sz);
-        dynamic_bitset ret = va;
-        for (i = 0; i < bit_s.size(); i++)
-            ret.bit_s[i] |= bit_s[i];
-        return ret;
-    }
-    dynamic_bitset& operator|=(const dynamic_bitset& va)
-    {
-        int i;
-        assert(va.sz == sz);
-        for (i = 0; i < bit_s.size(); i++)
-            this->bit_s[i] |= va.bit_s[i];
-        return *this;
-    }
-    dynamic_bitset operator&(const dynamic_bitset& va)
-    {
-        int i;
-        assert(va.sz == sz);
-        dynamic_bitset ret = va;
-        for (i = 0; i < bit_s.size(); i++)
-            ret.bit_s[i] &= bit_s[i];
-        return ret;
-    }
-    dynamic_bitset& operator&=(const dynamic_bitset& va)
-    {
-        int i;
-        assert(va.sz == sz);
-        for (i = 0; i < bit_s.size(); i++)
-            this->bit_s[i] &= va.bit_s[i];
-        return *this;
-    }
-    dynamic_bitset operator^(const dynamic_bitset& va)
-    {
-        int i;
-        assert(va.sz == sz);
-        dynamic_bitset ret = va;
-        for (i = 0; i < bit_s.size(); i++)
-            ret.bit_s[i] ^= bit_s[i];
-        return ret;
-    }
-    dynamic_bitset& operator^=(const dynamic_bitset& va)
-    {
-        int i;
-        assert(va.sz == sz);
-        for (i = 0; i < bit_s.size(); i++)
-            this->bit_s[i] ^= va.bit_s[i];
+        left(va);
         return *this;
     }
 
+    const dynamic_bitset& operator>>=(const int& va)
+    {
+        right(va);
+        return *this;
+    }
+
+    const dynamic_bitset& operator|=(const dynamic_bitset& va)
+    {
+        assert(va.N == N);
+        for (int i = 0; i < arr.size(); i++)
+            arr[i] |= va.arr[i];
+        return *this;
+    }
+
+    const dynamic_bitset& operator&=(const dynamic_bitset& va)
+    {
+        assert(va.N == N);
+        for (int i = 0; i < arr.size(); i++)
+            arr[i] &= va.arr[i];
+        return *this;
+    }
+
+    const dynamic_bitset& operator^=(const dynamic_bitset& va)
+    {
+        assert(va.N == N);
+        for (int i = 0; i < arr.size(); i++)
+            arr[i] ^= va.arr[i];
+        return *this;
+    }
+
+    constexpr dynamic_bitset operator|(const dynamic_bitset& va) const { return dynamic_bitset(*this) |= va; }
+    constexpr dynamic_bitset operator&(const dynamic_bitset& va) const { return dynamic_bitset(*this) &= va; }
+    constexpr dynamic_bitset operator^(const dynamic_bitset& va) const { return dynamic_bitset(*this) ^= va; }
+    constexpr dynamic_bitset operator<<(const int& va) const { return dynamic_bitset(*this) <<= va; }
+    constexpr dynamic_bitset operator>>(const int& va) const { return dynamic_bitset(*this) >>= va; }
+    constexpr bool operator==(const dynamic_bitset& va) const
+    {
+        assert(size() == va.size());
+        return equal(arr.begin(), arr.end(), va.arr.begin());
+    }
+    constexpr bool operator!=(const dynamic_bitset& va) const { return !(*this == va); }
+
+    friend ostream& operator<<(ostream& os, const dynamic_bitset& va)
+    {
+        for (int i = (N - 1) % 64; i >= 0; i--)
+            os << char('0' + ((va.arr.back() >> i) & 1));
+        for (int i = va.arr.size() - 2; i >= 0; i--)
+            for (int p = 63; p >= 0; p--)
+                os << char('0' + ((va.arr[i] >> p) & 1));
+        return os;
+    }
+
+    void set(int lo = -1)
+    {
+        assert(lo < N);
+        if (lo < 0) {
+            fill(arr.begin(), arr.end(), max64);
+            arr.back() = del_carry;
+        }
+        else
+            arr[lo / 64] |= (1ULL << (lo % 64));
+    }
+
+    void reset(int lo = -1)
+    {
+        assert(lo < N);
+        if (lo < 0)
+            fill(arr.begin(), arr.end(), 0ULL);
+        else
+            arr[lo / 64] &= ~(1ULL << (lo % 64));
+    }
+
+    void flip(int lo = -1)
+    {
+        assert(lo < N);
+        if (lo < 0) {
+            for (int i = 0; i < arr.size(); i++) arr[i] ^= max64;
+            arr.back() &= del_carry;
+        }
+        else
+            arr[lo / 64] ^= (1ULL << (lo % 64));
+    }
+
+    int size() const { return N; }
+
+    int count() const
+    {
+        int ret = 0;
+        for (auto v : arr) ret += __builtin_popcountll(v);
+        return ret;
+    }
+
+    bool all_bit() const
+    {
+        if (arr.back() < del_carry) return false;
+        for (int i = 0; i < arr.size() - 1; i++)
+            if (arr[i] < max64) return false;
+        return true;
+    }
+
+    bool any_bit() const
+    {
+        for (auto v : arr)
+            if (v > 0) return true;
+        return false;
+    }
+
+    bool none_bit() const { return !any_bit(); }
+
    private:
-    int sz;
-    ull del_carry, max_64;
-    vector<ull> bit_s;
+    static constexpr uint64_t max64 = 0ULL - 1ULL;
+    uint64_t del_carry;
+
+    vector<uint64_t> arr;
+
     void left(int va)
     {
-        int i, n;
-        ull cr, next_cr;
-        n = min(int(bit_s.size()), va / 64);
-        if (n > 0)
-            for (i = bit_s.size() - 1; i >= 0; i--)
+        int n = va / 64;
+        int shift = va % 64;
+        if (n > 0) {
+            for (int i = arr.size() - 1; i >= 0; i--) {
                 if (i - n >= 0)
-                    bit_s[i] = bit_s[i - n];
+                    arr[i] = arr[i - n];
                 else
-                    bit_s[i] = 0;
-        n = va % 64, cr = 0;
-        if (n > 0)
-            for (i = 0; i < bit_s.size(); i++) {
-                next_cr = bit_s[i] >> (64 - n);
-                bit_s[i] = (bit_s[i] << n) | cr;
-                cr = next_cr;
+                    arr[i] = 0;
             }
-        bit_s.back() &= del_carry;
+        }
+        if (shift > 0) {
+            uint64_t carry = 0;
+            for (int i = 0; i < arr.size(); i++) {
+                uint64_t next_carry = arr[i] >> (64 - shift);
+                arr[i] = (arr[i] << shift) | carry;
+                carry = next_carry;
+            }
+        }
+        arr.back() &= del_carry;
     }
+
     void right(int va)
     {
-        int i, n;
-        ull cr, next_cr;
-        n = min(int(bit_s.size()), va / 64);
-        if (n > 0)
-            for (i = 0; i < bit_s.size(); i++)
-                if (i + n < bit_s.size())
-                    bit_s[i] = bit_s[i + n];
+        int n = va / 64;
+        int shift = va % 64;
+        if (n > 0) {
+            for (int i = 0; i < arr.size(); i++) {
+                if (i + n < arr.size())
+                    arr[i] = arr[i + n];
                 else
-                    bit_s[i] = 0;
-        n = va % 64, cr = 0;
-        if (n > 0)
-            for (i = bit_s.size() - 1; i >= 0; i--) {
-                next_cr = bit_s[i] << (64 - n);
-                bit_s[i] = (bit_s[i] >> n) | cr;
-                cr = next_cr;
+                    arr[i] = 0;
             }
+        }
+        if (shift > 0) {
+            uint64_t carry = 0;
+            for (int i = arr.size() - 1; i >= 0; i--) {
+                uint64_t next_carry = arr[i] << (64 - shift);
+                arr[i] = (arr[i] >> shift) | carry;
+                carry = next_carry;
+            }
+        }
     }
 };
