@@ -1,6 +1,6 @@
 #include <bits/extc++.h>
 
-struct splitmix64_hash {
+struct splitmix64_hash { // do not use class as hash map
     static uint64_t splitmix64(uint64_t va)
     {
         va += 0x9e3779b97f4a7c15;
