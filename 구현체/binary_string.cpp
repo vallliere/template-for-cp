@@ -1,42 +1,45 @@
 struct binary_string {
-    binary_string() : N(string("0")) {}
-    binary_string(string _N) : N(_N) { trim_zero(); }
-    binary_string(int64_t _N)
+    binary_string() { N.push_back('0'); }
+    binary_string(list<char> _N) : N(_N) { trim_zero(); }
+    binary_string(string _N) : N(_N.begin(), _N.end()) { trim_zero(); }
+    binary_string(uint64_t _N)
     {
-        N = "";
-        while (_N > 0) N += (_N & 1) + '0', _N >>= 1;
-        if (!N.size()) N += '0';
-        reverse(all(N));
+        while (_N > 0) N.push_front((_N & 1) + '0'), _N >>= 1;
+        if (N.empty()) N.push_back('0');
         trim_zero();
     }
 
     binary_string &operator+=(const binary_string &va)
     {
-        int c, tm, x, y;
-        x = N.size() - 1, y = va.N.size() - 1, c = 0;
-        string ret = "";
-        while (x >= 0 || y >= 0 || c > 0) {
-            tm = (x >= 0 ? N[x] - '0' : 0) + (y >= 0 ? va.N[y] - '0' : 0) + c;
+        reverse_iterator<list<char>::iterator> r1 = N.rbegin();
+        reverse_iterator<list<char>::const_iterator> r2 = va.N.rbegin();
+        int c = 0;
+        list<char> ret;
+        while (r1 != N.rend() || r2 != va.N.rend() || c > 0) {
+            int tm = (r1 != N.rend() ? (*r1 - '0') : 0) + (r2 != va.N.rend() ? (*r2 - '0') : 0) + c;
             c = tm > 1;
-            ret.push_back((tm & 1) + '0');
-            x--, y--;
+            ret.push_front((tm & 1) + '0');
+            if (r1 != N.rend()) r1++;
+            if (r2 != va.N.rend()) r2++;
         }
-        reverse(ret.begin(), ret.end());
         N.swap(ret);
         return *this;
     }
 
-    // remember it works only N >= va.N
     binary_string &operator-=(const binary_string &va)
     {
-        int b, x, y, tm;
-        x = N.size() - 1, y = va.N.size() - 1, b = 0;
-        while (x >= 0 || y >= 0) {
-            tm = (x >= 0 ? N[x] - '0' : 0) - b - (y >= 0 ? va.N[y] - '0' : 0);
+        reverse_iterator<list<char>::iterator> r1 = N.rbegin();
+        reverse_iterator<list<char>::const_iterator> r2 = va.N.rbegin();
+        int b = 0;
+        while (r1 != N.rend() || r2 != va.N.rend()) {
+            int tm = (r1 != N.rend() ? (*r1 - '0') : 0) - b - (r2 != va.N.rend() ? (*r2 - '0') : 0);
             b = 0;
             if (tm < 0) tm += 2, b = 1;
-            N[x] = tm + '0';
-            x--, y--;
+            if (r1 != N.rend())
+                *r1 = tm + '0', r1++;
+            else
+                N.push_front(tm + '0');
+            if (r2 != va.N.rend()) r2++;
         }
         trim_zero();
         return *this;
@@ -44,63 +47,67 @@ struct binary_string {
 
     binary_string &operator*=(const binary_string &va)
     {
-        int tm;
-        if (N == "0" || va.N == "0") {
-            N = "0";
+        if ((N.size() == 1 && N.front() == '0') || (va.N.size() == 1 && va.N.front() == '0')) {
+            N.clear(), N.push_back('0');
             return *this;
         }
-        vector<int> mul(N.size() + va.N.size(), 0);
-        for (int i = N.size() - 1; i >= 0; i--) {
-            for (int p = va.N.size() - 1; p >= 0; p--) {
-                tm = (N[i] - '0') * (va.N[p] - '0') + mul[i + p + 1];
+        vector<bool> A, B;
+        for (auto ne : N) A.push_back(ne - '0');
+        for (auto ne : va.N) B.push_back(ne - '0');
+        vector<int> mul(A.size() + B.size(), 0);
+        for (int i = A.size() - 1; i >= 0; i--) {
+            for (int p = B.size() - 1; p >= 0; p--) {
+                int tm = mul[i + p + 1] + A[i] * B[p];
                 mul[i + p] += tm >> 1, mul[i + p + 1] = tm & 1;
             }
         }
-        string ret = "";
-        for (int i = 0; i < mul.size(); i++)
-            if (ret.size() > 0 || mul[i] > 0) ret += mul[i] + '0';
-        N.swap(ret);
-        trim_zero();
+        N.clear();
+        for (auto ne : mul)
+            if (!N.empty() || ne > 0) N.push_back(ne + '0');
+        if (N.empty()) N.push_back('0');
         return *this;
     }
 
     binary_string &operator/=(const binary_string &va)
     {
-        int c;
-        if (va.N == "0" && *this < va) {
-            N = "0";
-            return *this;
-        }
-        string ret = "";
+        if (va.N.size() == 1 && va.N.front() == '0') throw runtime_error("Divide by zero");
+        string ret;
         binary_string dv;
-        for (char ne : N) {
-            dv.N.push_back(ne);
-            dv.trim_zero();
-            c = 0;
-            if (va <= dv)
-                dv -= va, c++;
-            ret += c + '0';
+        for (auto ne : N) {
+            dv.N.push_back(ne), dv.trim_zero();
+            int c = 0;
+            if (va <= dv) dv -= va, c++;
+            ret.push_back(c + '0');
         }
-        N.swap(ret);
+        N.clear();
+        for (auto c : ret) N.push_back(c);
         trim_zero();
         return *this;
     }
 
     binary_string &operator%=(const binary_string &va)
     {
-        if (va.N == "0") {
-            N = "0";
-            return *this;
-        }
+        if (va.N.size() == 1 && va.N.front() == '0') throw runtime_error("Divide by zero");
         binary_string dv;
-        for (char ne : N) {
-            dv.N.push_back(ne);
-            dv.trim_zero();
-            if (va <= dv)
-                dv -= va;
+        for (auto ne : N) {
+            dv.N.push_back(ne), dv.trim_zero();
+            if (va <= dv) dv -= va;
         }
         N.swap(dv.N);
         trim_zero();
+        return *this;
+    }
+
+    binary_string &operator<<=(int va)
+    {
+        while (va-- > 0) N.push_back('0');
+        return *this;
+    }
+
+    binary_string &operator>>=(int va)
+    {
+        while (va-- > 0 && !N.empty()) N.pop_back();
+        if (N.empty()) N.push_back('0');
         return *this;
     }
 
@@ -109,22 +116,34 @@ struct binary_string {
     binary_string operator*(const binary_string &va) const { return binary_string(*this) *= va; }
     binary_string operator/(const binary_string &va) const { return binary_string(*this) /= va; }
     binary_string operator%(const binary_string &va) const { return binary_string(*this) %= va; }
-    bool operator==(const binary_string &va) const { return N == va.N; }
-    bool operator!=(const binary_string &va) const { return N != va.N; }
-    bool operator<(const binary_string &va) const { return va.N.size() > N.size() || (va.N.size() == N.size() && va.N > N); }
-    bool operator>(const binary_string &va) const { return va.N.size() < N.size() || (va.N.size() == N.size() && va.N < N); }
+    binary_string operator<<(const int va) const { return binary_string(*this) <<= va; }
+    binary_string operator>>(const int va) const { return binary_string(*this) >>= va; }
+    bool operator==(const binary_string &va) const
+    {
+        if (N.size() != va.N.size()) return false;
+        return equal(N.begin(), N.end(), va.N.begin());
+    }
+    bool operator!=(const binary_string &va) const { return !(*this == va); }
+    bool operator<(const binary_string &va) const
+    {
+        if (N.size() != va.N.size()) return N.size() < va.N.size();
+        return lexicographical_compare(N.begin(), N.end(), va.N.begin(), va.N.end());
+    }
+    bool operator>(const binary_string &va) const { return va < *this; }
     bool operator<=(const binary_string &va) const { return !(va < *this); }
     bool operator>=(const binary_string &va) const { return !(*this < va); }
 
     friend ostream &operator<<(ostream &os, const binary_string &va)
     {
-        return os << va.N;
+        for (auto c : va.N) os << c;
+        return os;
     }
 
     friend istream &operator>>(istream &is, binary_string &va)
     {
-        is >> va.N;
-        va.trim_zero();
+        string str;
+        is >> str;
+        va = binary_string(str);
         return is;
     }
 
@@ -132,13 +151,8 @@ struct binary_string {
 
     void trim_zero()
     {
-        size_t lo = N.find_first_not_of('0');
-        if (lo == string::npos) {
-            N = "0";
-            return;
-        }
-        N = N.substr(lo);
+        while (N.size() > 1 && N.front() == '0') N.pop_front();
     }
 
-    string N;
+    list<char> N;
 };
